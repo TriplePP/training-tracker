@@ -1,8 +1,8 @@
 'use client';
 
-import {CssBaseline} from '@mui/material';
+import {Box, CssBaseline} from '@mui/material';
 import {ThemeProvider, createTheme} from '@mui/material/styles';
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/components/Navbar";
 
 const theme = createTheme();
 
@@ -17,7 +17,9 @@ export default function RootLayout({
         <ThemeProvider theme={theme}>
             <CssBaseline/>
             <Navbar/>
-            {children}
+            <Box display="flex" justifyContent={"center"} alignItems={"center"}>
+                {children}
+            </Box>
         </ThemeProvider>
         </body>
         </html>

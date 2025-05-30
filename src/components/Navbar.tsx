@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { COLOURS } from '../../constants';
+import {COLOURS} from '../constants';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,18 +11,28 @@ import IconButton from '@mui/material/IconButton';
 import CastForEducationIcon from '@mui/icons-material/CastForEducation';
 import Link from 'next/link';
 
+const navButtonStyle = {
+    color: COLOURS.textPrimary,
+    transition: 'all 0.3s ease',
+    borderBottom: `2px solid transparent`,
+    '&:hover': {
+        backgroundColor: 'transparent',
+        borderBottom: `2px solid ${COLOURS.textPrimary}`,
+        borderRadius: 0,
+    },
+};
 
 export default function Navbar() {
     return (
         <Box sx={{flexGrow: 1}}>
-            <AppBar position="static">
+            <AppBar position="fixed">
                 <Toolbar>
                     <IconButton
+                        component={Link} href="\"
                         size="large"
                         edge="start"
-                        color="inherit"
                         aria-label="menu"
-                        sx={{mr: 2}}
+                        sx={{mr: 2, color: COLOURS.textPrimary}}
                     >
                         <CastForEducationIcon/>
                     </IconButton>
@@ -33,24 +43,12 @@ export default function Navbar() {
                     }}>
                         TrainingTracker
                     </Typography>
-                    <Link href={"#"}>
-                        <Button color="inherit" sx={{color: COLOURS.textPrimary}}>My Training</Button>
-                    </Link>
-                    <Link href={"#"}>
-                        <Button color="inherit" sx={{color: COLOURS.textPrimary}}>Calendar</Button>
-                    </Link>
-                    <Link href={"#"}>
-                        <Button color="inherit" sx={{color: COLOURS.textPrimary}}>Login</Button>
-                    </Link>
-                    <Link href={"#"}>
-                        <Button color="inherit" sx={{color: COLOURS.textPrimary}}>Logout</Button>
-                    </Link>
+                    <Button component={Link} href="#" color="inherit" sx={navButtonStyle}>My Training</Button>
+                    <Button component={Link} href="#" color="inherit" sx={navButtonStyle}>Calendar</Button>
+                    <Button component={Link} href="#" color="inherit" sx={navButtonStyle}>Login</Button>
+                    <Button component={Link} href="#" color="inherit" sx={navButtonStyle}>Logout</Button>
                 </Toolbar>
             </AppBar>
         </Box>
-    );
-
-    return (
-        <></>
     );
 }
