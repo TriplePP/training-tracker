@@ -8,12 +8,15 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const data = await request.json();
+    const responseData = await request.json();
     const newUser = await prisma.user.create({
         data: {
-            username: data.username,
-            email: data.email,
-            password: data.password
+            username: responseData.username,
+            email: responseData.email,
+            password: responseData.password,
+            firstname: responseData.firstname,
+            lastname: responseData.lastname,
+            role: responseData.role || "student"
         },
     });
 
