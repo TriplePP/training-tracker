@@ -30,6 +30,7 @@ model Course {
   title       String
   description String
   date        DateTime
+  icon        String
   trainerId   Int
   trainer     User         @relation("TrainerCourses", fields: [trainerId], references: [id])
   enrollments Enrollment[]

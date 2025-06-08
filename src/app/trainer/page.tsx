@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -13,8 +13,45 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { useRouter } from "next/navigation";
 import { COLOURS } from "@/constants";
 
+interface User {
+  id: number;
+  username: string;
+  firstname: string;
+  lastname: string;
+  email: string;
+  role: string;
+}
+
 function TrainerDashboard() {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // For demo purposes, we'll fetch a trainer user with id=1
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/users");
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const users = await response.json();
+        // Find a user with role "trainer"
+        const trainerUser = users.find((u: User) => u.role === "trainer");
+
+        if (trainerUser) {
+          setUser(trainerUser);
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const tiles = [
     {
@@ -43,16 +80,43 @@ function TrainerDashboard() {
       gap={4}
       sx={{ flexDirection: "column" }}
     >
+      {/* Main Heading */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          align="center"
+          sx={{
+            fontWeight: "bold",
+            color: COLOURS.textSecondary,
+            letterSpacing: "1px",
+            pb: 1,
+            borderBottom: `3px solid ${COLOURS.primary}`,
+          }}
+        >
+          Trainer Dashboard
+        </Typography>
+      </Box>
+
+      {/* Welcome Message */}
       <Typography
-        variant="h3"
+        variant="h5"
         align="center"
         gutterBottom
         sx={{
-          letterSpacing: "1px",
+          letterSpacing: "0.5px",
           color: COLOURS.textSecondary,
+          mb: 4,
         }}
       >
-        Hi Trainer, welcome to your dashboard
+        Hi {user ? user.firstname : "Trainer"}, welcome to your dashboard
       </Typography>
       <Box
         display="flex"
