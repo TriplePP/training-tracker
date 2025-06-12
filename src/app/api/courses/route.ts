@@ -50,8 +50,8 @@ export async function GET(request: Request) {
     }
     
     // Otherwise, return a list of courses
-    // Build the query
-    const query: any = {
+    // Build the query with proper types
+    const query = {
       include: {
         trainer: {
           select: {
@@ -63,23 +63,19 @@ export async function GET(request: Request) {
         }
       },
       orderBy: {
-        date: 'asc' // Order by date ascending
-      }
+        date: 'asc' as const // Type assertion to 'asc' literal
+      },
+      where: trainerId ? { trainerId } : undefined
     };
     
-    // Add trainerId filter if provided
-    if (trainerId) {
-      query.where = {
-        trainerId: parseInt(trainerId)
-      };
-    }
-    
     const courses = await prisma.course.findMany(query);
+    
+    // Always return a 200 status code with the courses array (even if empty)
     return NextResponse.json(courses);
   } catch (error) {
     console.error('Error fetching courses:', error);
     return NextResponse.json(
-      { message: 'Failed to fetch courses' },
+      { message: 'Failed to fetch courses', error: String(error) },
       { status: 500 }
     );
   }

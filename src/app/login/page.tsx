@@ -1,13 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  generateCsrfToken,
-  setCsrfCookie,
-  generateAndSetCsrfToken,
-} from "@/lib/csrf";
+import { signIn } from "next-auth/react";
 import {
   Box,
   Card,
@@ -25,14 +21,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [csrfToken, setCsrfToken] = useState("");
-
-  // Generate CSRF token on component mount
-  useEffect(() => {
-    // Generate a token and set cookie using the utility function
-    const token = generateAndSetCsrfToken();
-    setCsrfToken(token);
-  }, []);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -41,36 +29,35 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          csrfToken,
-        }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || "Login failed");
+      if (result?.error) {
+        setError("Invalid email or password");
         setLoading(false);
         return;
       }
 
+      // Fetch user data to determine role for redirection
+      const response = await fetch("/api/users/me");
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const userData = await response.json();
+
       // Redirect based on user role
-      if (data.role === "student") {
+      if (userData.role === "student") {
         router.push("/student");
       } else {
         router.push("/trainer");
       }
     } catch (error) {
       setError("An error occurred. Please try again.");
-      console.log(error);
+      console.error(error);
       setLoading(false);
     }
   };
@@ -108,7 +95,6 @@ export default function LoginPage() {
             </Alert>
           )}
           <form onSubmit={handleLogin}>
-            <input type="hidden" name="csrfToken" value={csrfToken} />
             <TextField
               label="Email"
               type="email"

@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import { validateCsrfToken, extractCsrfTokenFromCookie } from '@/lib/csrf';
 
 export async function GET() {
-    console.log('success');
     const users = await prisma.user.findMany();
     return NextResponse.json(users);
 }
@@ -78,6 +77,7 @@ export async function POST(request: Request) {
         });
 
         // Return user without password
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password, ...userWithoutPassword } = newUser;
         return NextResponse.json(userWithoutPassword, { status: 201 });
     } catch (error) {

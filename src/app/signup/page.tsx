@@ -3,11 +3,7 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  generateCsrfToken,
-  setCsrfCookie,
-  generateAndSetCsrfToken,
-} from "@/lib/csrf";
+import { generateAndSetCsrfToken } from "@/lib/csrf";
 import {
   Box,
   Card,

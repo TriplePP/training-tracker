@@ -47,11 +47,17 @@ export default function ViewClasses() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        // TODO install next auth and use session to get logged user details
-        const trainerId = 1;
+        // First get the current user
+        const userResponse = await fetch("/api/users/me");
+        if (!userResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
 
+        const userData = await userResponse.json();
+        const trainerId = userData.id;
+
+        // Then fetch courses for this trainer
         const response = await fetch(`/api/courses?trainerId=${trainerId}`);
-
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
@@ -205,8 +211,8 @@ export default function ViewClasses() {
               </Typography>
             ) : (
               <Typography>
-                You haven't created any classes yet. Create your first class to
-                get started.
+                You haven&apos;t created any classes yet. Create your first
+                class to get started.
               </Typography>
             )}
           </Box>

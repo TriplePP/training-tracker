@@ -28,21 +28,16 @@ function TrainerDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // For demo purposes, we'll fetch a trainer user with id=1
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/users");
+        // Fetch the currently logged-in user
+        const response = await fetch("/api/users/me");
         if (!response.ok) {
           throw new Error("Failed to fetch user data");
         }
 
-        const users = await response.json();
-        // Find a user with role "trainer"
-        const trainerUser = users.find((u: User) => u.role === "trainer");
-
-        if (trainerUser) {
-          setUser(trainerUser);
-        }
+        const userData = await response.json();
+        setUser(userData);
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {
@@ -80,100 +75,109 @@ function TrainerDashboard() {
       gap={4}
       sx={{ flexDirection: "column" }}
     >
-      {/* Main Heading */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Typography
-          variant="h3"
-          component="h1"
-          align="center"
-          sx={{
-            fontWeight: "bold",
-            color: COLOURS.textSecondary,
-            letterSpacing: "1px",
-            pb: 1,
-            borderBottom: `3px solid ${COLOURS.primary}`,
-          }}
-        >
-          Trainer Dashboard
+      {loading ? (
+        <Typography variant="h5" align="center">
+          Loading...
         </Typography>
-      </Box>
-
-      {/* Welcome Message */}
-      <Typography
-        variant="h5"
-        align="center"
-        gutterBottom
-        sx={{
-          letterSpacing: "0.5px",
-          color: COLOURS.textSecondary,
-          mb: 4,
-        }}
-      >
-        Hi {user ? user.firstname : "Trainer"}, welcome to your dashboard
-      </Typography>
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        gap={4}
-        sx={{ backgroundColor: COLOURS.primaryBackground }}
-      >
-        {tiles.map((tile) => (
-          <Card
-            key={tile.title}
+      ) : (
+        <>
+          {/* Main Heading */}
+          <Box
             sx={{
-              width: 200,
-              height: 200,
-              textAlign: "center",
-              transition: "0.3s",
-              borderRadius: 4,
-              boxShadow: 3,
-              "&:hover": {
-                boxShadow: 6,
-                cursor: "pointer",
-                "& .underline": {
-                  width: "60%",
-                },
-              },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              mb: 2,
             }}
-            onClick={() => router.push(tile.href)}
           >
-            <CardActionArea sx={{ height: "100%" }}>
-              <CardContent
+            <Typography
+              variant="h3"
+              component="h1"
+              align="center"
+              sx={{
+                fontWeight: "bold",
+                color: COLOURS.textSecondary,
+                letterSpacing: "1px",
+                pb: 1,
+                borderBottom: `3px solid ${COLOURS.primary}`,
+              }}
+            >
+              Trainer Dashboard
+            </Typography>
+          </Box>
+
+          {/* Welcome Message */}
+          <Typography
+            variant="h5"
+            align="center"
+            gutterBottom
+            sx={{
+              letterSpacing: "0.5px",
+              color: COLOURS.textSecondary,
+              mb: 4,
+            }}
+          >
+            Hi {user ? user.firstname : "Trainer"}, welcome to your dashboard
+          </Typography>
+
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            gap={4}
+            sx={{ backgroundColor: COLOURS.primaryBackground }}
+          >
+            {tiles.map((tile) => (
+              <Card
+                key={tile.title}
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
+                  width: 200,
+                  height: 200,
+                  textAlign: "center",
+                  transition: "0.3s",
+                  borderRadius: 4,
+                  boxShadow: 3,
+                  "&:hover": {
+                    boxShadow: 6,
+                    cursor: "pointer",
+                    "& .underline": {
+                      width: "60%",
+                    },
+                  },
                 }}
+                onClick={() => router.push(tile.href)}
               >
-                {tile.icon}
-                <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
-                  {tile.title}
-                </Typography>
-                <Box
-                  className="underline"
-                  sx={{
-                    mt: 1,
-                    height: "3px",
-                    width: "0%",
-                    backgroundColor: COLOURS.primary,
-                    transition: "width 0.3s ease-in-out",
-                  }}
-                />
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        ))}
-      </Box>
+                <CardActionArea sx={{ height: "100%" }}>
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                    }}
+                  >
+                    {tile.icon}
+                    <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
+                      {tile.title}
+                    </Typography>
+                    <Box
+                      className="underline"
+                      sx={{
+                        mt: 1,
+                        height: "3px",
+                        width: "0%",
+                        backgroundColor: COLOURS.primary,
+                        transition: "width 0.3s ease-in-out",
+                      }}
+                    />
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            ))}
+          </Box>
+        </>
+      )}
     </Box>
   );
 }

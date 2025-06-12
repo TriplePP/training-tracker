@@ -13,7 +13,6 @@ import {
   MenuItem,
   Alert,
   Paper,
-  Grid,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -87,8 +86,14 @@ function CreateClass() {
     }
 
     try {
-      // TODO again, replace this later with next auth
-      const trainerId = 1;
+      // Get the current user's ID
+      const userResponse = await fetch("/api/users/me");
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const userData = await userResponse.json();
+      const trainerId = userData.id;
 
       const response = await fetch("/api/courses", {
         method: "POST",
