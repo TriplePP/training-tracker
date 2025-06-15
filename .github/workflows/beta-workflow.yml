@@ -34,11 +34,10 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.BETA_NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ secrets.BETA_DATABASE_URL }}
 
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
       - name: Deploy to Vercel (Preview)
-        uses: vercel/actions@v4
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: "--prod" # This deploys to the preview environment linked to the beta branch
-          working-directory: ./
+        run: vercel deploy --token=${{ secrets.VERCEL_TOKEN }} --prod
         env:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
