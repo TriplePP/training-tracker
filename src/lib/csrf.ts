@@ -18,7 +18,9 @@ export function generateCsrfToken(): string {
  */
 export function setCsrfCookie(token: string, maxAge: number = 3600): void {
   if (typeof document !== 'undefined') {
-    document.cookie = `csrf_token=${token}; path=/; max-age=${maxAge}; SameSite=Strict`;
+    // Add secure flag in production
+    const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+    document.cookie = `csrf_token=${token}; path=/; max-age=${maxAge}; SameSite=Strict${secure}`;
   }
 }
 
