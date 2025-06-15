@@ -10,10 +10,5 @@
       "main": true,
       "beta": true
     }
-  },
-  "env": {
-    "NEXTAUTH_URL": {
-      "development": "http://localhost:3000"
-    }
   }
 }
