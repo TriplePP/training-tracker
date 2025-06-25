@@ -50,64 +50,83 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.error('Authentication error: Missing email or password');
+            return null;
+          }
+
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
+
+          if (!user) {
+            console.error(`Authentication error: No user found with email ${credentials.email}`);
+            return null;
+          }
+
+          if (!user.password) {
+            console.error(`Authentication error: User ${credentials.email} has no password set`);
+            return null;
+          }
+
+          // Compare the provided password with the stored hash
+          const passwordMatch = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+          
+          if (!passwordMatch) {
+            console.error(`Authentication error: Invalid password for user ${credentials.email}`);
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstname} ${user.lastname}`,
+            username: user.username,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error('Authentication error:', error);
           return null;
         }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        if (!user.password) {
-          return null;
-        }
-
-        // Compare the provided password with the stored hash
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-        
-        if (!passwordMatch) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: `${user.firstname} ${user.lastname}`,
-          username: user.username,
-          firstname: user.firstname,
-          lastname: user.lastname,
-          role: user.role,
-        };
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.username = user.username;
-        token.firstname = user.firstname;
-        token.lastname = user.lastname;
-        token.role = user.role;
+      try {
+        if (user) {
+          token.id = user.id;
+          token.username = user.username;
+          token.firstname = user.firstname;
+          token.lastname = user.lastname;
+          token.role = user.role;
+        }
+        return token;
+      } catch (error) {
+        console.error('JWT callback error:', error);
+        return token;
       }
-      return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.username = token.username;
-        session.user.firstname = token.firstname;
-        session.user.lastname = token.lastname;
-        session.user.role = token.role;
+      try {
+        if (token) {
+          session.user.id = token.id as string;
+          session.user.username = token.username;
+          session.user.firstname = token.firstname;
+          session.user.lastname = token.lastname;
+          session.user.role = token.role;
+        }
+        return session;
+      } catch (error) {
+        console.error('Session callback error:', error);
+        return session;
       }
-      return session;
     },
   },
   pages: {
