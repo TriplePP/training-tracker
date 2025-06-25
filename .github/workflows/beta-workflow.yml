@@ -39,7 +39,7 @@ jobs:
           # Set environment variables for the build
           NEXTAUTH_URL: ${{ secrets.BETA_NEXTAUTH_URL }}
           NEXTAUTH_SECRET: ${{ secrets.BETA_NEXTAUTH_SECRET }}
-          DATABASE_URL: ${{ secrets.BETA_DATABASE_URL }}
+          DATABASE_URL: "postgres://neondb_owner:npg_j6MFb9tygiLs@ep-snowy-sun-ab2gm228-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require"
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest

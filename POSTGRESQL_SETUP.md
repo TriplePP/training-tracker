@@ -1,75 +1,82 @@
 # PostgreSQL Setup Guide
 
-This project uses PostgreSQL as the database, with Prisma as the ORM. The database is hosted on Vercel with Prisma Accelerate for production, but you can run it locally using Docker for development.
-
-## Environment Variables
-
-The project uses the following environment variables for database connection:
-
-- `DATABASE_URL`: The connection string for Prisma Accelerate
-- `DIRECT_DATABASE_URL`: The direct connection string to PostgreSQL (used for migrations)
-
-These are already set up in the `.env` and `.env.development` files.
+This document provides instructions for setting up and using PostgreSQL with this project.
 
 ## Local Development with Docker
 
-1. Make sure you have Docker and Docker Compose installed on your machine.
-
-2. Start the PostgreSQL container:
+For local development, we use a PostgreSQL database running in Docker:
 
 ```bash
+# Start the PostgreSQL container
 docker-compose up -d
 ```
 
-This will start a PostgreSQL server on port 5432 with the following credentials:
-
-- Username: postgres
-- Password: postgres
-- Database: training_tracker
-
-3. Update your `.env.development.local` file to use the local PostgreSQL instance for direct connections:
+The connection string for local development is:
 
 ```
-DIRECT_DATABASE_URL="postgresql://postgres:postgres@localhost:5432/training_tracker?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/training_tracker?schema=public"
 ```
 
-4. Run migrations to set up your database schema:
+## Production Environment with Neon PostgreSQL
+
+For production, we use Neon PostgreSQL, a serverless PostgreSQL service:
+
+### Connection Strings
+
+```
+# Recommended for most uses (with connection pooling)
+DATABASE_URL="postgres://neondb_owner:npg_j6MFb9tygiLs@ep-snowy-sun-ab2gm228-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require"
+
+# For uses requiring a connection without pgbouncer
+DATABASE_URL_UNPOOLED="postgresql://neondb_owner:npg_j6MFb9tygiLs@ep-snowy-sun-ab2gm228.eu-west-2.aws.neon.tech/neondb?sslmode=require"
+```
+
+### Connection Parameters
+
+```
+PGHOST=ep-snowy-sun-ab2gm228-pooler.eu-west-2.aws.neon.tech
+PGHOST_UNPOOLED=ep-snowy-sun-ab2gm228.eu-west-2.aws.neon.tech
+PGUSER=neondb_owner
+PGDATABASE=neondb
+PGPASSWORD=npg_j6MFb9tygiLs
+```
+
+## Database Migrations
+
+To run database migrations:
 
 ```bash
-npx prisma migrate dev
+# Generate Prisma client
+npx prisma generate
+
+# Run migrations
+npx prisma migrate deploy
 ```
 
-5. Seed the database with initial data (if needed):
+## Seeding the Database
+
+To seed the database with initial data:
 
 ```bash
-npx prisma db seed
+# Run the seed SQL file
+cat src/prisma/seed.sql | docker exec -i training-tracker-postgres-1 psql -U postgres -d training_tracker
 ```
 
-## Connecting to the Database
-
-You can connect to the database using tools like pgAdmin, TablePlus, or Postico using the `@prisma/ppg-tunnel` package.
-
-## Troubleshooting
-
-If you encounter any issues with the database connection:
-
-1. Make sure the Docker container is running:
+For production:
 
 ```bash
-docker ps
+# Connect to Neon SQL Editor and run the seed.sql file
 ```
 
-2. Check the logs of the PostgreSQL container:
+## Vercel Deployment
 
-```bash
-docker logs training-tracker-postgres
+The project is configured to automatically run migrations during the build process on Vercel:
+
+```json
+// vercel.json
+{
+  "buildCommand": "prisma generate && prisma migrate deploy && next build"
+}
 ```
 
-3. Ensure your environment variables are correctly set up.
-
-4. Try restarting the Docker container:
-
-```bash
-docker-compose down
-docker-compose up -d
-```
+This ensures that the database schema is always up to date with the latest code.
