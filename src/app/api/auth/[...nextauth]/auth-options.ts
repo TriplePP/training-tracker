@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 
+// Helper function to capitalize the first letter of a string
+function capitalizeFirstLetter(string: string): string {
+  if (!string) return string;
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
 // Extend the built-in session types
 declare module "next-auth" {
   interface Session {
@@ -81,13 +87,17 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // Capitalize first letter of first name and last name
+          const capitalizedFirstname = capitalizeFirstLetter(user.firstname);
+          const capitalizedLastname = capitalizeFirstLetter(user.lastname);
+
           return {
             id: user.id,
             email: user.email,
-            name: `${user.firstname} ${user.lastname}`,
+            name: `${capitalizedFirstname} ${capitalizedLastname}`,
             username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
+            firstname: capitalizedFirstname,
+            lastname: capitalizedLastname,
             role: user.role,
           };
         } catch (error) {
