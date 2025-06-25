@@ -1,27 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  CircularProgress,
-  Button,
-} from "@mui/material";
+import { Box, Typography, Paper, CircularProgress } from "@mui/material";
 import { COLOURS } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
-  addMonths,
-  subMonths,
-  getDay,
-  isToday,
-} from "date-fns";
+import Calendar, { CalendarCourse } from "@/components/Calendar";
+import { addMonths, subMonths } from "date-fns";
 
 // Define the Course interface
 interface Course {
@@ -74,25 +58,27 @@ function TrainerCalendarPage() {
     }
   }, [user, isAuthenticated, isLoading]);
 
-  // Get courses for a specific date
-  const getCoursesForDate = (date: Date) => {
-    return courses.filter((course) => isSameDay(new Date(course.date), date));
-  };
-
   // Handle course click
   const handleCourseClick = (courseId: number) => {
     router.push(`/trainer/classes/${courseId}`);
   };
 
   // Navigate to previous month
-  const prevMonth = () => {
+  const handlePrevMonth = () => {
     setCurrentMonth(subMonths(currentMonth, 1));
   };
 
   // Navigate to next month
-  const nextMonth = () => {
+  const handleNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
   };
+
+  // Convert courses to calendar courses
+  const calendarCourses: CalendarCourse[] = courses.map((course) => ({
+    id: course.id,
+    title: course.title,
+    date: course.date,
+  }));
 
   // Show loading state
   if (isLoading || loading) {
@@ -121,21 +107,6 @@ function TrainerCalendarPage() {
       </Box>
     );
   }
-
-  // Calendar header - days of the week
-  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  // Get all days in the current month
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const startDate = monthStart;
-  const endDate = monthEnd;
-
-  // Get all days in the interval
-  const days = eachDayOfInterval({ start: startDate, end: endDate });
-
-  // Calculate the day of the week for the first day (0 = Sunday, 1 = Monday, etc.)
-  const startDay = getDay(monthStart);
 
   return (
     <Box
@@ -172,132 +143,18 @@ function TrainerCalendarPage() {
           width: "100%",
         }}
       >
-        {/* Calendar Navigation */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
+        <Calendar
+          courses={calendarCourses}
+          currentMonth={currentMonth}
+          onPrevMonth={handlePrevMonth}
+          onNextMonth={handleNextMonth}
+          onCourseClick={handleCourseClick}
+          emptyStateMessage="You haven't created any training sessions yet."
+          emptyStateAction={{
+            label: "Create New Training",
+            onClick: () => router.push("/trainer/create"),
           }}
-        >
-          <Button onClick={prevMonth} variant="outlined">
-            Previous
-          </Button>
-          <Typography variant="h5">
-            {format(currentMonth, "MMMM yyyy")}
-          </Typography>
-          <Button onClick={nextMonth} variant="outlined">
-            Next
-          </Button>
-        </Box>
-
-        {/* Calendar Grid */}
-        <Box sx={{ width: "100%" }}>
-          {/* Days of Week Header */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 1,
-              mb: 1,
-            }}
-          >
-            {daysOfWeek.map((day) => (
-              <Box key={day} sx={{ textAlign: "center" }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{ fontWeight: "bold", color: COLOURS.textSecondary }}
-                >
-                  {day}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-
-          {/* Calendar Days */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 1,
-            }}
-          >
-            {/* Empty cells for days before the start of the month */}
-            {Array.from({ length: startDay }).map((_, index) => (
-              <Box
-                key={`empty-${index}`}
-                sx={{
-                  height: 120,
-                  border: "1px solid #eee",
-                  borderRadius: 1,
-                  backgroundColor: "#f5f5f5",
-                }}
-              />
-            ))}
-
-            {/* Actual days of the month */}
-            {days.map((day) => {
-              const coursesOnDay = getCoursesForDate(day);
-              const isCurrentMonth = isSameMonth(day, currentMonth);
-
-              return (
-                <Box
-                  key={day.toString()}
-                  sx={{
-                    height: 120,
-                    border: "1px solid #eee",
-                    borderRadius: 1,
-                    p: 1,
-                    backgroundColor: isToday(day)
-                      ? "#e3f2fd"
-                      : isCurrentMonth
-                      ? "white"
-                      : "#f5f5f5",
-                    position: "relative",
-                    overflow: "auto",
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: isToday(day) ? "bold" : "normal",
-                      mb: 1,
-                    }}
-                  >
-                    {format(day, "d")}
-                  </Typography>
-
-                  {/* Course buttons */}
-                  {coursesOnDay.map((course) => (
-                    <Button
-                      key={course.id}
-                      variant="contained"
-                      size="small"
-                      color="primary"
-                      fullWidth
-                      sx={{
-                        mb: 0.5,
-                        textTransform: "none",
-                        justifyContent: "flex-start",
-                        fontSize: "0.75rem",
-                        py: 0.5,
-                        px: 1,
-                        lineHeight: 1.2,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                      onClick={() => handleCourseClick(course.id)}
-                    >
-                      {course.title}
-                    </Button>
-                  ))}
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
+        />
       </Paper>
     </Box>
   );
