@@ -54,9 +54,13 @@ interface Course {
 
 interface CourseTileProps {
   course: Course;
+  userRole?: string;
 }
 
-const CourseTile: React.FC<CourseTileProps> = ({ course }) => {
+const CourseTile: React.FC<CourseTileProps> = ({
+  course,
+  userRole = "trainer",
+}) => {
   const router = useRouter();
 
   // Truncate description to around 50 characters
@@ -87,7 +91,14 @@ const CourseTile: React.FC<CourseTileProps> = ({ course }) => {
           cursor: "pointer",
         },
       }}
-      onClick={() => router.push(`/trainer/classes/${course.id}`)}
+      onClick={() => {
+        // Navigate to different pages based on user role
+        if (userRole === "student") {
+          router.push(`/student/book/${course.id}`);
+        } else {
+          router.push(`/trainer/classes/${course.id}`);
+        }
+      }}
     >
       <CardActionArea sx={{ height: "100%" }}>
         <CardContent
