@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth.js Models
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -21,8 +20,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -44,19 +42,17 @@ model VerificationToken {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  username    String       @unique
-  firstname   String
-  lastname    String
-  email       String       @unique
-  password    String?
-  role        String       @default("student") // or "trainer"
-  enrollments Enrollment[]
-  courses     Course[]     @relation("TrainerCourses")
-
-  // NextAuth.js fields
+  id            String       @id @default(cuid())
+  username      String       @unique
+  firstname     String
+  lastname      String
+  email         String       @unique
+  password      String?
+  role          String       @default("student")
   emailVerified DateTime?
   accounts      Account[]
+  courses       Course[]     @relation("TrainerCourses")
+  enrollments   Enrollment[]
   sessions      Session[]
 }
 
@@ -76,9 +72,8 @@ model Enrollment {
   userId   String
   courseId Int
   status   String @default("booked")
-
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
+  user     User   @relation(fields: [userId], references: [id])
 
   @@unique([userId, courseId])
 }
