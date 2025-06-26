@@ -3,6 +3,12 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from 'bcrypt';
 import { validateCsrfToken, extractCsrfTokenFromCookie } from '@/lib/csrf';
 
+// Helper function to capitalize the first letter of a string
+function capitalizeFirstLetter(string: string): string {
+    if (!string) return string;
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
 export async function GET() {
     const users = await prisma.user.findMany();
     return NextResponse.json(users);
@@ -64,14 +70,18 @@ export async function POST(request: Request) {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(responseData.password, saltRounds);
         
-        // Create new user with hashed password
+        // Capitalize first letter of first name and last name
+        const capitalizedFirstname = capitalizeFirstLetter(responseData.firstname);
+        const capitalizedLastname = capitalizeFirstLetter(responseData.lastname);
+        
+        // Create new user with hashed password and capitalized names
         const newUser = await prisma.user.create({
             data: {
                 username: responseData.username,
                 email: responseData.email,
                 password: hashedPassword,
-                firstname: responseData.firstname,
-                lastname: responseData.lastname,
+                firstname: capitalizedFirstname,
+                lastname: capitalizedLastname,
                 role: responseData.role || "student"
             },
         });
