@@ -38,7 +38,13 @@ export default function Navbar() {
         <Toolbar>
           <IconButton
             component={Link}
-            href="\"
+            href={
+              isAuthenticated
+                ? user?.role === "trainer"
+                  ? "/trainer"
+                  : "/student"
+                : "/"
+            }
             size="large"
             edge="start"
             aria-label="menu"
@@ -70,15 +76,23 @@ export default function Navbar() {
               </Button>
               <Button
                 component={Link}
-                href="#"
+                href={
+                  user?.role === "trainer"
+                    ? "/trainer/classes"
+                    : "/student/training"
+                }
                 color="inherit"
                 sx={navButtonStyle}
               >
-                My Training
+                {user?.role === "trainer" ? "My Classes" : "My Training"}
               </Button>
               <Button
                 component={Link}
-                href="#"
+                href={
+                  user?.role === "trainer"
+                    ? "/trainer/calendar"
+                    : "/student/calendar"
+                }
                 color="inherit"
                 sx={navButtonStyle}
               >
