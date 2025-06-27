@@ -1,5 +1,5 @@
 // src/lib/prisma.ts
-import { PrismaClient } from '@prisma/client';
+import {PrismaClient} from '@prisma/client';
 
 // For global use
 const globalForPrisma = globalThis as unknown as {
@@ -11,11 +11,11 @@ function createPrismaClient() {
     try {
         // Configure logging based on environment
         const client = new PrismaClient({
-            log: process.env.NODE_ENV === 'development' 
-                ? ['query', 'error', 'warn'] 
+            log: process.env.NODE_ENV === 'development'
+                ? ['query', 'error', 'warn']
                 : ['error'],
         });
-        
+
         // Log any unexpected errors during queries
         client.$use(async (params, next) => {
             try {
@@ -25,7 +25,7 @@ function createPrismaClient() {
                 throw error;
             }
         });
-        
+
         return client;
     } catch (error) {
         console.error('Failed to create Prisma client:', error);
