@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 
 // Client-side CSRF functions
 
@@ -7,8 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
  * @returns A unique CSRF token
  */
 export function generateCsrfToken(): string {
-  const token = uuidv4();
-  return token;
+    const token = uuidv4();
+    return token;
 }
 
 /**
@@ -17,15 +17,15 @@ export function generateCsrfToken(): string {
  * @param maxAge Cookie expiration time in seconds (default: 1 hour)
  */
 export function setCsrfCookie(token: string, maxAge: number = 3600): void {
-  try {
-    if (typeof document !== 'undefined') {
-      // Add secure flag in production
-      const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
-      document.cookie = `csrf_token=${token}; path=/; max-age=${maxAge}; SameSite=Strict${secure}`;
+    try {
+        if (typeof document !== 'undefined') {
+            // Add secure flag in production
+            const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+            document.cookie = `csrf_token=${token}; path=/; max-age=${maxAge}; SameSite=Strict${secure}`;
+        }
+    } catch (error) {
+        console.error('Error setting CSRF cookie:', error);
     }
-  } catch (error) {
-    console.error('Error setting CSRF cookie:', error);
-  }
 }
 
 /**
@@ -34,15 +34,15 @@ export function setCsrfCookie(token: string, maxAge: number = 3600): void {
  * @returns The generated CSRF token
  */
 export function generateAndSetCsrfToken(maxAge: number = 3600): string {
-  try {
-    const token = generateCsrfToken();
-    setCsrfCookie(token, maxAge);
-    return token;
-  } catch (error) {
-    console.error('Error generating and setting CSRF token:', error);
-    // Return a fallback token in case of error
-    return generateCsrfToken();
-  }
+    try {
+        const token = generateCsrfToken();
+        setCsrfCookie(token, maxAge);
+        return token;
+    } catch (error) {
+        console.error('Error generating and setting CSRF token:', error);
+        // Return a fallback token in case of error
+        return generateCsrfToken();
+    }
 }
 
 /**
@@ -51,13 +51,13 @@ export function generateAndSetCsrfToken(maxAge: number = 3600): string {
  * @returns The CSRF token or empty string if not found
  */
 export function extractCsrfTokenFromCookie(cookieHeader: string): string {
-  try {
-    const csrfCookie = cookieHeader.split(';').find(c => c.trim().startsWith('csrf_token='));
-    return csrfCookie ? csrfCookie.split('=')[1] : '';
-  } catch (error) {
-    console.error('Error extracting CSRF token from cookie:', error);
-    return '';
-  }
+    try {
+        const csrfCookie = cookieHeader.split(';').find(c => c.trim().startsWith('csrf_token='));
+        return csrfCookie ? csrfCookie.split('=')[1] : '';
+    } catch (error) {
+        console.error('Error extracting CSRF token from cookie:', error);
+        return '';
+    }
 }
 
 /**
@@ -67,14 +67,14 @@ export function extractCsrfTokenFromCookie(cookieHeader: string): string {
  * @returns True if the tokens match, false otherwise
  */
 export function validateCsrfToken(token: string, storedToken: string): boolean {
-  try {
-    if (!token || !storedToken) {
-      console.error('CSRF validation failed: Missing token or stored token');
-      return false;
+    try {
+        if (!token || !storedToken) {
+            console.error('CSRF validation failed: Missing token or stored token');
+            return false;
+        }
+        return token === storedToken;
+    } catch (error) {
+        console.error('Error validating CSRF token:', error);
+        return false;
     }
-    return token === storedToken;
-  } catch (error) {
-    console.error('Error validating CSRF token:', error);
-    return false;
-  }
 }
